@@ -5,6 +5,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const SignUp = require('./modules/SignUp'); 
 const Login = require('./modules/Login');
+const Add = require('./modules/Add');
 const app = express();
 const PORT = 8888;
 const JWT_SECRET = 'your_jwt_secret_key'; // Change this to a secure key
@@ -57,6 +58,40 @@ app.post('/SignUp', async (req, res) => {
       res.json({ status: "Success", message: "User registered successfully" });
     } catch (error) {
       res.status(500).json({ status: "Error", message: error.message });
+    }
+  });
+  app.post('/Add', async (req, res) => {
+    const { fullname, phoneno, village, place, pincode, houseno, missingdate, aadharno, gender, age } = req.body;
+  
+    try {
+      // Create a new missing person record
+      const newMissingPerson = new Add({
+        fullname,
+        phoneno,
+        village,
+        place,
+        pincode,
+        houseno,
+        missingdate,
+        aadharno,
+        gender,
+        age
+      });
+  
+      await newMissingPerson.save();
+  
+      res.json({ status: "success", message: "Missing person record added successfully" });
+    } catch (error) {
+      res.status(500).json({ status: "error", message: error.message });
+    }
+  });
+
+  app.get('/View', async (req, res) => {
+    try {
+      const missingPersons = await Add.find();
+      res.json(missingPersons);
+    } catch (error) {
+      res.status(500).json({ status: "error", message: error.message });
     }
   });
 app.listen(PORT, () => {
