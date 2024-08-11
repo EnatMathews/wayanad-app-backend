@@ -86,6 +86,32 @@ app.post('/SignUp', async (req, res) => {
     }
   });
 
+  app.post('/Add', async (req, res) => {
+    const { fullname, phoneno, village, place, pincode, houseno, missingdate, aadharno, gender, age } = req.body;
+  
+    try {
+      // Create a new missing person record
+      const newMissingPerson = new Add({
+        fullname,
+        phoneno,
+        village,
+        place,
+        pincode,
+        houseno,
+        missingdate,
+        aadharno,
+        gender,
+        age
+      });
+  
+      await newMissingPerson.save();
+  
+      res.json({ status: "success", message: "Missing person record added successfully" });
+    } catch (error) {
+      res.status(500).json({ status: "error", message: error.message });
+    }
+  });
+
   app.get('/View', async (req, res) => {
     try {
       const missingPersons = await Add.find();
