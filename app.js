@@ -4,6 +4,7 @@ const cors = require('cors');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const SignUp = require('./modules/SignUp'); 
+const Login = require('./modules/Login');
 const app = express();
 const PORT = 8888;
 const JWT_SECRET = 'your_jwt_secret_key'; // Change this to a secure key
@@ -14,6 +15,29 @@ mongoose.connect("mongodb+srv://Enat:EnatVibin@cluster0.ts1wpg0.mongodb.net/waya
   })
   .then(() => console.log("MongoDB connected"))
   .catch(err => console.error("MongoDB connection error:", err));
+  app.post('/Login', async (req, res) => {
+    const { user, pass } = req.body;
+    
+    try {
+      const userRecord = await Login.findOne({ user });
+      if (!userRecord) {
+        return res.status(400).json({ status: "Fail", message: "User not found" });
+      }
+      
+      const isMatch = await bcrypt.compare(pass, userRecord.pass);
+      if (isMatch) {
+        // Generate a JWT token
+        const token = jwt.sign({ userId: userRecord._id }, JWT_SECRET, { expiresIn: '1h' });
+        res.json({ status: "Success", token });
+      } else {
+        res.status(400).json({ status: "Fail", message: "Incorrect password" });
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      res.status(500).json({ status: "Error", message: "Server error" });
+    }
+  });
+  
 
 app.post('/SignUp', async (req, res) => {
     const { name, mob, addd, pin, dir, place, emaill, user, pass } = req.body;
